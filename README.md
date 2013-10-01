@@ -1,10 +1,7 @@
-Echo Service for Stackato
+CouchDB Service for Stackato
 =========================
 
-An example system service for Stackato which echoes service requests and
-provides a port credential. This sample, along with the following
-instructions, show how to add a system service to a Stackato micro
-cloud.
+This CouchDB Service for Stackato is under active development.  It is currently based on the Echo Service sample code.
 
 This sample is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
 with some additional configuration (e.g for `kato` and `supervisord`)
