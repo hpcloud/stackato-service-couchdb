@@ -4,8 +4,8 @@ module VCAP
     module Couchdb
       module Common
         def service_name
-          "CouchdbaaS"
-        endCouchdb
+          "Couchdb"
+        end
       end
     end
   end
