@@ -1,17 +1,17 @@
 ---
 cloud_controller_uri: api.stackato.local
 service:
-  name: echo
+  name: couchdb
   version: "1.0"
   description: 'Echo service'
   plans: ['free']
   default_plan: free
-  tags: ['echo', 'echo-1.0', 'echobased', 'demo']
+  tags: ['couchdb', 'couchdb-1.0', 'couchdbbased', 'demo']
 ip_route: 127.0.0.1
 index: 0
-token: changeechotoken
+token: changecouchdbtoken
 logging:
   level: debug
 mbus: nats://127.0.0.1:4222
-pid: /var/vcap/sys/run/echo_service.pid
+pid: /var/vcap/sys/run/couchdb_service.pid
 node_timeout: 2

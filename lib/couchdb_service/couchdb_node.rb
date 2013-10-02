@@ -6,20 +6,20 @@ require "uuidtools"
 
 module VCAP
   module Services
-    module Echo
+    module Couchdb
       class Node < VCAP::Services::Base::Node
       end
     end
   end
 end
 
-require "echo_service/common"
-require "echo_service/echo_error"
+require "couchdb_service/common"
+require "couchdb_service/couchdb_error"
 
-class VCAP::Services::Echo::Node
+class VCAP::Services::Couchdb::Node
 
-  include VCAP::Services::Echo::Common
-  include VCAP::Services::Echo
+  include VCAP::Services::Couchdb::Common
+  include VCAP::Services::Couchdb
 
   class ProvisionedService
     include DataMapper::Resource
@@ -78,7 +78,7 @@ class VCAP::Services::Echo::Node
 
   def unprovision(name, credentials = [])
     return if name.nil?
-    @logger.debug("Unprovision echo service: #{name}")
+    @logger.debug("Unprovision couchdb service: #{name}")
     instance = get_instance(name)
     destroy_instance(instance)
     true
@@ -105,16 +105,16 @@ class VCAP::Services::Echo::Node
   end
 
   def save_instance(instance)
-    raise EchoError.new(EchoError::ECHO_SAVE_INSTANCE_FAILED, instance.inspect) unless instance.save
+    raise CouchdbError.new(CouchdbError::ECHO_SAVE_INSTANCE_FAILED, instance.inspect) unless instance.save
   end
 
   def destroy_instance(instance)
-    raise EchoError.new(EchoError::ECHO_DESTROY_INSTANCE_FAILED, instance.inspect) unless instance.destroy
+    raise CouchdbError.new(CouchdbError::ECHO_DESTROY_INSTANCE_FAILED, instance.inspect) unless instance.destroy
   end
 
   def get_instance(name)
     instance = ProvisionedService.get(name)
-    raise EchoError.new(EchoError::ECHO_FIND_INSTANCE_FAILED, name) if instance.nil?
+    raise CouchdbError.new(CouchdbError::ECHO_FIND_INSTANCE_FAILED, name) if instance.nil?
     instance
   end
 

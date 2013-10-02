@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2011 VMware, Inc.
+couchdb# Copyright (c) 2009-2011 VMware, Inc.
 ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", __FILE__)
 PWD = File.dirname(__FILE__)
 
@@ -40,7 +40,7 @@ def config_base_dir
 end
 
 def get_node_test_config()
-  config_file = File.join(config_base_dir, 'echo_node.yml')
+  config_file = File.join(config_base_dir, 'couchdb_node.yml')
   config = YAML.load_file(config_file)
   options = {
     :logger => get_logger,

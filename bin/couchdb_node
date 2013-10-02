@@ -8,20 +8,20 @@ require 'bundler/setup'
 require 'vcap_services_base'
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
-require "echo_service/echo_node"
+require "couchdb_service/couchdb_node"
 
-class VCAP::Services::Echo::NodeBin < VCAP::Services::Base::NodeBin
+class VCAP::Services::Couchdb::NodeBin < VCAP::Services::Base::NodeBin
 
   def initialize
-    @component_id = "echo_node"
+    @component_id = "couchdb_node"
   end
 
   def node_class
-    VCAP::Services::Echo::Node
+    VCAP::Services::Couchdb::Node
   end
 
   def default_config_file
-    File.join(File.dirname(__FILE__), '..', 'config', 'echo_node.yml')
+    File.join(File.dirname(__FILE__), '..', 'config', 'couchdb_node.yml')
   end
 
   def additional_config(options, config)
@@ -31,4 +31,4 @@ class VCAP::Services::Echo::NodeBin < VCAP::Services::Base::NodeBin
 
 end
 
-VCAP::Services::Echo::NodeBin.new.start
+VCAP::Services::Couchdb::NodeBin.new.start

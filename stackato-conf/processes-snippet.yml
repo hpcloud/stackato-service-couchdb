@@ -1,8 +1,8 @@
   -
-    name: echo_node
-    config_origin: /s/vcap/services/echo/config/echo_node.yml
+    name: couchdb_node
+    config_origin: /s/vcap/services/couchdb/config/couchdb_node.yml
     doozer_ephemeral: true
   -
-    name: echo_gateway
-    config_origin: /s/vcap/services/echo/config/echo_gateway.yml
+    name: couchdb_gateway
+    config_origin: /s/vcap/services/couchdb/config/couchdb_gateway.yml
     doozer_ephemeral: true
