@@ -2,11 +2,11 @@
 cloud_controller_uri: api.stackato.local
 service:
   name: couchdb
-  version: "1.0"
-  description: 'Echo service'
+  version: "1.4"
+  description: 'Couchdb service'
   plans: ['free']
   default_plan: free
-  tags: ['couchdb', 'couchdb-1.0', 'couchdbbased', 'demo']
+  tags: ['couchdb', 'couchdb-1.4', 'couchdbbased', 'demo']
 ip_route: 127.0.0.1
 index: 0
 token: changecouchdbtoken
