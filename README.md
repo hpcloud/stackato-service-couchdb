@@ -13,19 +13,19 @@ here are for [Stackato
 
 Log in to the Stackato VM (micro cloud or service node) as the
 'stackato' user and clone this repository directly into a
-vcap/services/echo directory:
+vcap/services/couchdb directory:
 
-    $ git clone git://github.com/ActiveState/stackato-echoservice.git /s/vcap/services/echo
+    $ git clone https://github.com/shsu/stackato-couchdb.git /s/vcap/services/couchdb
 
 Alternatively, copy a local checkout to Stackato using SCP:
 
-    $ scp -r stackato-echoservice stackato@stackato-vm.local:~/stackato/vcap/services/echo
+    $ scp -r stackato-couchdbservice stackato@stackato-vm.local:~/stackato/vcap/services/couchdb
 
 ## Install the service gems
 
-On the VM, go to the 'echo' directory and run 'bundle update':
+On the VM, go to the 'couchdb' directory and run 'bundle update':
 
-    $ cd /s/vcap/services/echo
+    $ cd /s/vcap/services/couchdb
     $ bundle install 
 
 ## Edit the config files
@@ -42,7 +42,7 @@ Some settings in the default files in the config/ directory will need to be modi
 ## Install to supervisord
 
 Supervisord monitors, starts, and stops all Stackato processes, and will
-need to have configuration files for the 'echo_gateway' and 'echo_node'
+need to have configuration files for the 'couchdb_gateway' and 'couchdb_node'
 processes. These supervisord config files can be found in the
 'stackato-conf' directory.
 
@@ -54,7 +54,7 @@ First, stop kato and supervisord:
   
 Copy the supervisord config files:
 
-    $ cp stackato-conf/echo_*  /s/etc/supervisord.conf.d/
+    $ cp stackato-conf/couchdb_*  /s/etc/supervisord.conf.d/
   
 
 ## Install to Kato
@@ -67,9 +67,9 @@ kato config files:
     $ cat stackato-conf/processes-snippet.yml >> /s/etc/kato/processes.yml
     $ cat stackato-conf/roles-snippet.yml >> /s/etc/kato/roles.yml
 
-Note that 'echo_node' should always be specified before 'echo_gateway'.
+Note that 'couchdb_node' should always be specified before 'couchdb_gateway'.
 
-Optionally, you can add echo to the "data-services" group in
+Optionally, you can add couchdb to the "data-services" group in
 role_groups.yml or create a new group. These groupings enable subsequent
 easy enabling/disabling of logical groups of services.
 
@@ -77,7 +77,7 @@ easy enabling/disabling of logical groups of services.
 
 Doozer is the centralized configuration management component in
 Stackato, including the service configuration we have just added. To
-load the settings from the YAML files in 'echo/config/':
+load the settings from the YAML files in 'couchdb/config/':
 
 Change to the /s/ directory (symlink of /home/stackato/stackato/), then
 start supervisord:
@@ -86,9 +86,9 @@ start supervisord:
 
 Run the following two commands:
 
-    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("echo_node", YAML.load_file("/s/vcap/services/echo/config/echo_node.yml"))'
+    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("couchdb_node", YAML.load_file("/s/vcap/services/couchdb/config/couchdb_node.yml"))'
   
-    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("echo_gateway", YAML.load_file("/s/vcap/services/echo/config/echo_gateway.yml"))'
+    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("couchdb_gateway", YAML.load_file("/s/vcap/services/couchdb/config/couchdb_gateway.yml"))'
   
 These commands must be run after any change in the YAML config files.
 
@@ -98,16 +98,16 @@ These commands must be run after any change in the YAML config files.
 The auth token used must match between the service and cloud controller
 nodes so we must set them accordingly:
 
-    $ kato config set cloud_controller builtin_services/echo '{"token": "<echo_gateway.yml auth token>"}' --json
+    $ kato config set cloud_controller builtin_services/couchdb '{"token": "<couchdb_gateway.yml auth token>"}' --json
 
-Replace the <echo_gateway.yml auth token> string above with the auth
-token you setup up earlier in config/echo_gateway.yml
+Replace the <couchdb_gateway.yml auth token> string above with the auth
+token you setup up earlier in config/couchdb_gateway.yml
 
-## Enable echo and start
+## Enable couchdb and start
 
-    $ kato role add echo
-    starting echo_node...               ok
-    starting echo_gateway...            ok
+    $ kato role add couchdb
+    starting couchdb_node...            ok
+    starting couchdb_gateway...         ok
     starting logyard...                 ok
     starting cloudevents...             ok
     starting systail...                 ok
@@ -118,7 +118,7 @@ Finally, start all other stackato processes:
 
 ## Verify the service
 
-Once the echo service has been enabled and started in kato, clients
+Once the couchdb service has been enabled and started in kato, clients
 targeting the system should be able to see it listed in the System
 Services output:
 
@@ -129,7 +129,7 @@ Services output:
     +------------+---------+------------------------------------------+
     | Service    | Version | Description                              |
     +------------+---------+------------------------------------------+
-    | echo       | 1.0     | Echo service                             |
+    | couchdb    | 1.4     | CouchDB service                          |
     | filesystem | 1.0     | Persistent filesystem service            |
     | memcached  | 1.4     | Memcached in-memory object cache service |
     | mongodb    | 2.0     | MongoDB NoSQL store                      |
@@ -140,5 +140,5 @@ Services output:
     
 To create a new service:
 
-    $ stackato create-service echo
-    Creating Service [echo-503db]: OK
+    $ stackato create-service couchdb
+    Creating Service [couchdb-503db]: OK
