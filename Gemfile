@@ -10,7 +10,7 @@ gem "dm-sqlite-adapter", "1.1.0"
 gem "do_sqlite3", "0.10.13"
 gem "sinatra", "1.3.6"
 gem "thin", "1.5.1"
-
+gem "couchrest", "1.2.0"
 
 gem 'vcap_common', :path => '../../common', :require => ['vcap/common', 'vcap/component']
 gem 'vcap_logging', '>=0.1.3', :require => ['vcap/logging']
