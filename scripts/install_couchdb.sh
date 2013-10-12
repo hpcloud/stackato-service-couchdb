@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
-VERSION="1.4"
 
 # Install prerequisites for couchdb to run
 # apt-get update
 
-# Install couchdb to /opt
-# wget https://download.couchdb.org/couchdb/couchdb/couchdb-$VERSION.tar.gz
-tar -xzf couchdb-$VERSION.tar.gz
-mv couchdb-$VERSION /opt/couchdb
-chown --recursive stackato:stackato /opt/couchdb
+# get couchdb
+wget https://dl.dropboxusercontent.com/u/13515458/couchdb.tar.gz
 
-# clean up installation
-rm couchdb-$VERSION.tar.gz
+# untar and put it in /opt/
+tar -zxf couchdb.tar.gz
+mv build-couchdb /opt/
+
+# set correct permissions
+chown --recursive stackato:stackato /opt/build-couchdb
+
+#setup path
+. /opt/build-couchdb/build/env.sh
+
+# clean up source
+rm couchdb.tar.gz
