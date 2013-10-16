@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
-# Install prerequisites for couchdb to run
-# apt-get update
+# install the libraries which couchdb needs
+apt-get install libicu-dev -y
+apt-get install libtool -y
+apt-get install erlang -y
 
-# get couchdb
-wget https://dl.dropboxusercontent.com/u/13515458/couchdb-1.4.tar.gz
+# download and install spidermonkey 1.8.5
+wget http://ftp.mozilla.org/pub/mozilla.org/js/js185-1.0.0.tar.gz
+tar zxvf js185-1.0.0.tar.gz
+cd js-1.8.5/js/src
+./configure
+make && make install
+/sbin/ldconfig
 
-# untar and put it in /opt/
-tar -zxf couchdb.tar.gz
-mv build-couchdb /opt/
-
-#setup path
-. /opt/build-couchdb/build/env.sh
-
-# clean up source
-rm couchdb.tar.gz
-
-# set correct permissions
-# chown --recursive stackato:stackato /opt/build-couchdb
+# download and install couchdb
+wget http://apache.mirror.rafal.ca/couchdb/source/1.4.0/apache-couchdb-1.4.0.tar.gz 
+tar zxvf apache-couchdb-1.4.0.tar.gz
+cd apache-couchdb-1.4.0
+./configure
+make && make check
+make install
