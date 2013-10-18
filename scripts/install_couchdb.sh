@@ -20,3 +20,10 @@ cd apache-couchdb-1.4.0
 ./configure
 make && make check
 make install
+
+# clean up
+rm -rf ~/stackato-couchdb
+ln -s /s/vcap/services/couchdb/ stackato-couchdb
+
+rm /s/vcap/services/couchdb/js185-1.0.0.tar.gz
+rm -rf /s/vcap/services/couchdb/js-1.8.5
