@@ -62,6 +62,8 @@ class VCAP::Services::Couchdb::Node
     end
 
     begin
+	  #here we add the start_couchdb for now
+	  start_couchdb(instance)
       save_instance(instance)
     rescue => e1
       @logger.error("Could not save instance: #{instance.name}, cleanning up")
@@ -76,6 +78,45 @@ class VCAP::Services::Couchdb::Node
     gen_credential(instance)
   end
 
+  # edit. We are starting the couchDB instance here
+  def start_couchdb(instance)
+    pidfile = pid_file
+    exec_path = "/usr/local/bin/couchdb"
+
+    # run couchdb, setting the pidfile path
+    cmd = "#{exec_path} -p #{pidfile} -b"
+    @logger.debug("*** starting main process: #{cmd}")
+
+    env = {}
+
+    pid = Process.spawn(env, cmd)
+	
+    # In parent, detach the child
+    Process.detach(pid)
+
+    # wait for the process to start
+    sleep(3)
+
+    # grab the pid from the spawned instance
+    instance.pid = get_pid
+
+    @logger.debug("CouchDB started with pid #{pid}")
+
+    @logger.debug("*** end start_couchdb")
+  end
+  
+  def pid_file
+	return File.join(@base_dir, 'pidfile')
+  end
+  
+  def get_pid()
+    # read from the pidfile
+    file = File.new(pid_file, "r")
+    pid = file.gets
+    file.close
+    return pid.to_i
+  end
+  
   def unprovision(name, credentials = [])
     return if name.nil?
     @logger.debug("Unprovision couchdb service: #{name}")
