@@ -84,7 +84,7 @@ class VCAP::Services::Couchdb::Node
     exec_path = "/usr/local/bin/couchdb"
 
     # run couchdb, setting the pidfile path
-    cmd = "#{exec_path} -p #{pidfile} -b"
+    cmd = "sudo #{exec_path} -p #{pidfile} -b"
     @logger.debug("*** starting main process: #{cmd}")
 
     env = {}
