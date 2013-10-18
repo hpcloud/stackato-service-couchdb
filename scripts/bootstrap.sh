@@ -12,7 +12,7 @@ cd /s/vcap/services/couchdb && bundle install
 cp /s/vcap/services/couchdb/stackato-conf/couchdb_* /s/etc/supervisord.conf.d/
 
 # Install to kato
-cat /s/vcap/services/couchdb/stackatocouchdb-conf/processes-snippet.yml >> /s/etc/kato/processes.yml
+cat /s/vcap/services/couchdb/stackato-conf/processes-snippet.yml >> /s/etc/kato/processes.yml
 cat /s/vcap/services/couchdb/stackato-conf/roles-snippet.yml >> /s/etc/kato/roles.yml
 
 # Restart supervisord
