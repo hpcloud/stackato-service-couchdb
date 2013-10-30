@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Stop kato and supervisord for reconfiguration
 kato stop
@@ -7,6 +7,7 @@ stop-supervisord
 # Copy couchdb to the services folder and update gems
 cp -R /home/stackato/stackato-couchdb /s/vcap/services/couchdb
 cd /s/vcap/services/couchdb && bundle install 
+rm -rf /home/stackato/stackato-couchdb
 
 # Copy the stackato configuration files to supervisord
 cp /s/vcap/services/couchdb/stackato-conf/couchdb_* /s/etc/supervisord.conf.d/
