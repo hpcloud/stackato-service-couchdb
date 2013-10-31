@@ -33,6 +33,8 @@ class VCAP::Services::Couchdb::Node
     @port = options[:port]
     @base_dir = options[:base_dir]
     @supported_versions = ["1.0"]
+    @couchdb_admin = options[:couchdb_admin]
+    @couchdb_password = options[:couchdb_password]
   end
 
   def pre_send_announcement
