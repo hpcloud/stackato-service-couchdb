@@ -12,3 +12,4 @@ node_id: couchdb_node_1
 port: 5002
 supported_versions: ["1.0"]
 default_version: "1.0"
+couchdb_admin: admin
