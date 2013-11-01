@@ -1,0 +1,119 @@
+<html>
+<head>
+    <title>Tasks</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        // retrieve database name from url (for example "tasks")
+        var DATABASE = "/" + window.location.href.split("/")[3];
+        
+        function getTasks() {
+            $.ajax({
+                url: DATABASE + "/_design/tasks/_view/tasks",
+                success: function (data){
+                    var view = JSON.parse(data);
+                    var tasks = [];
+                    $(view.rows).each( function (index, item) {
+                        tasks.push (item.value);
+                    });
+                    displayTasks(tasks);
+                }
+             });
+        }
+        
+        function displayTasks(tasks) {
+            var html = "<table>";
+            $(tasks).each( function (index, task) {
+                var edit = "<input type='button' value='Edit' " +
+                    "onclick='editTask(" + JSON.stringify(task) + ")' />";
+                var del = "<input type='button' value='Delete' " +
+                    "onclick='deleteTask(" + JSON.stringify(task) + ")' />";
+
+                html += "<tr>";
+                html += "<td>" + task.task + "</td>";
+                html += "<td>" + edit + "</td>";
+                html += "<td>" + del + "</td>";
+                html += "</tr>";
+            });
+            html += "</table>";
+            
+            $('#tasks').empty();            
+            $('#tasks').append(html);
+        }
+        
+        function addTask() {
+            var desc = prompt("Enter a task description");
+            if (desc) {
+                var task = {
+                    "task": desc
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: DATABASE,
+                    contentType: "application/json",
+                    data: JSON.stringify(task),
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        function editTask(task) {
+            var desc = prompt("New task description", task.task);
+            if (desc) {
+                task.task = desc;
+
+                $.ajax({
+                    type: "PUT",
+                    url: DATABASE + "/" + task._id,
+                    contentType: "application/json",
+                    data: JSON.stringify(task),
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        function deleteTask(task) {
+            var doit = confirm("Do you really want to delete the task '" + 
+                task.task + "'?");
+            if (doit) {
+                $.ajax({
+                    type: "DELETE",
+                    url: DATABASE + "/" + task._id + "?rev=" + task._rev,
+                    success: function () {
+                        getTasks();
+                    }
+                 });
+            }
+        }
+        
+        // create view (will fail if already existing)
+        function createView() {
+            var view = {
+               "language": "javascript",
+               "views": {
+                   "tasks": {
+                       "map": "function(doc) {if (doc.task) {emit(doc.task, doc);}}"
+                   }
+               }
+            }
+            $.ajax({
+                type: "PUT",
+                url: DATABASE + "/_design/tasks",
+                contentType: "application/json",
+                data: JSON.stringify(view)
+             });
+        }
+    </script>
+</head>
+
+<body onload="createView(); getTasks();">
+    <h1>Tasks</h1>    
+    <input type="button" id="add" value="Add" onclick="addTask();" />
+    <div id="tasks"></div>
+</body>
+</html>
