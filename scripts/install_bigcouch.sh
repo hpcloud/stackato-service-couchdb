@@ -8,6 +8,5 @@ sudo apt-get install bigcouch -y
 
 sudo cp -f bigcouch_default_config.args /opt/bigcouch/etc/vm.args
 
-# ===== test =====
+# ===== test installation ===== #
 curl -X GET http://localhost:5984
-{"couchdb":"Welcome","version":"1.1.1","bigcouch":"0.4.2"}
