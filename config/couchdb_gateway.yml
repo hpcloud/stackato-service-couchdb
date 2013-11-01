@@ -9,7 +9,6 @@ service:
   tags: ['couchdb', 'couchdb-1.4', 'couchdbbased', 'demo']
 ip_route: 127.0.0.1
 index: 0
-token: "0xdeadbeef"
 logging:
   level: debug
 mbus: nats://127.0.0.1:4222
