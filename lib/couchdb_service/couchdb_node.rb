@@ -3,6 +3,7 @@ require "fileutils"
 require "logger"
 require "datamapper"
 require "uuidtools"
+require "rest_client"  #rev 1 addition 31/10/13
 
 module VCAP
   module Services
@@ -24,6 +25,8 @@ class VCAP::Services::Couchdb::Node
   class ProvisionedService
     include DataMapper::Resource
     property :name,       String,   :key => true
+	property :user,       String  #rev 1 addition 31/10/13
+	property :password,   String  #rev 1 addition 31/10/13
   end
 
   def initialize(options)
@@ -35,6 +38,7 @@ class VCAP::Services::Couchdb::Node
     @supported_versions = ["1.0"]
     @couchdb_admin = options[:couchdb_admin]
     @couchdb_password = options[:couchdb_password]
+    @couchdb_hostname = options[:couchdb_hostname]   #rev 1 addition 31/10/13
   end
 
   def pre_send_announcement
@@ -62,7 +66,10 @@ class VCAP::Services::Couchdb::Node
     else
       instance.name = UUIDTools::UUID.random_create.to_s
     end
-
+	
+	# creating the database
+    raise "Cannot create database" unless create_database(instance) #rev 1 addition 31/10/13
+	
     begin
       save_instance(instance)
     rescue => e1
@@ -76,6 +83,19 @@ class VCAP::Services::Couchdb::Node
     end
 
     gen_credential(instance)
+  end
+  
+  #rev 1 addition 31/10/13
+  def create_database(instance)
+    db_name = instance.name
+	
+	begin
+	  RestClient.put "http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}"
+	rescue
+	  return false
+	end
+	return true
+	
   end
   
   def unprovision(name, credentials = [])
