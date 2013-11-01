@@ -9,4 +9,5 @@ sudo apt-get install bigcouch -y --force-yes
 sudo cp -f bigcouch_default_config.args /opt/bigcouch/etc/vm.args
 
 # ===== test installation ===== #
+sleep 5
 curl -X GET http://localhost:5984
