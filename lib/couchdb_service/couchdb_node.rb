@@ -90,7 +90,7 @@ class VCAP::Services::Couchdb::Node
     db_name = instance.name
 	
 	begin
-	  RestClient.put "http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}"
+	  RestClient.put "http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}", ''
 	rescue
 	  return false
 	end
