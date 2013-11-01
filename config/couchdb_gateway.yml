@@ -6,7 +6,7 @@ service:
   description: 'Couchdb service'
   plans: ['free']
   default_plan: free
-  tags: ['couchdb', 'couchdb-1.4', 'couchdbbased', 'demo']
+  tags: ['couchdb', 'couchdb-1.1.1', 'couchdb']
 ip_route: 127.0.0.1
 index: 0
 logging:
