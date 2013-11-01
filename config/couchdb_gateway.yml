@@ -1,5 +1,4 @@
 ---
-cloud_controller_uri: api.stackato.local
 service:
   name: couchdb
   version: "1.1.1"
