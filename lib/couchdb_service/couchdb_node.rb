@@ -25,8 +25,8 @@ class VCAP::Services::Couchdb::Node
   class ProvisionedService
     include DataMapper::Resource
     property :name,       String,   :key => true
-	property :user,       String  #rev 1 addition 31/10/13
-	property :password,   String  #rev 1 addition 31/10/13
+    property :user,       String  #rev 1 addition 31/10/13
+    property :password,   String  #rev 1 addition 31/10/13
   end
 
   def initialize(options)
@@ -66,10 +66,10 @@ class VCAP::Services::Couchdb::Node
     else
       instance.name = UUIDTools::UUID.random_create.to_s
     end
-	
-	# creating the database
-    raise "Cannot create database" unless create_database(instance) #rev 1 addition 31/10/13
-	
+
+    # creating the database
+    create_database(instance) #rev 1 addition 31/10/13
+    
     begin
       save_instance(instance)
     rescue => e1
@@ -88,13 +88,19 @@ class VCAP::Services::Couchdb::Node
   #rev 1 addition 31/10/13
   def create_database(instance)
     db_name = instance.name
-	
-	begin
-	  RestClient.put "http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}", ''
-	rescue
-	  return false
-	end
-	return true
+    
+    RestClient.put ("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}", '') { |response, request, result, &block|
+      case response.code
+      when 404
+        raise "Cannot Create Database: Status Code 404"
+      when 401
+        raise "Cannot Create Database: Status Code 401"
+      when 400
+        raise "Cannot Create Database: Status Code 400"
+      else
+        raise "Cannot Create Database: Status Code Unknown"
+      end
+    }
 	
   end
   
