@@ -92,6 +92,7 @@ class VCAP::Services::Couchdb::Node
     RestClient.put ("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}", '') { |response, request, result, &block|
       case response.code
       when 200
+      
       when 404
         raise "Cannot Create Database: Status Code 404"
       when 401
