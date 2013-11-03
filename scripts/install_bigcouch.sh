@@ -6,4 +6,4 @@ echo "deb http://packages.cloudant.com/ubuntu `lsb_release -cs` main" | sudo tee
 sudo apt-get update
 sudo apt-get install bigcouch -y --force-yes
 
-sudo cp -f bigcouch_default_config.args /opt/bigcouch/etc/vm.args
+sudo cp -f /home/stackato/stackato-couchdb/scripts/bigcouch_default_config.args /opt/bigcouch/etc/vm.args
