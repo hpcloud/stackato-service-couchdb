@@ -112,10 +112,19 @@ class VCAP::Services::Couchdb::Node
     return if name.nil?
     @logger.debug("Unprovision couchdb service: #{name}")
     instance = get_instance(name)
-    destroy_instance(instance)
+	
+	#delete the database
+	delete_database(instance)
+    
+	destroy_instance(instance)
     true
   end
-
+  
+  def delete_database(instance)
+	db_name = instance.name
+	RestClient.delete "http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}" 
+  end
+  
   def bind(name, binding_options, credential = nil)
     instance = nil
     if credential
