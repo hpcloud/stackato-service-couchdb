@@ -25,8 +25,8 @@ class VCAP::Services::Couchdb::Node
   class ProvisionedService
     include DataMapper::Resource
     property :name,       String,   :key => true
-    property :user,       String  #rev 1 addition 31/10/13
-    property :password,   String  #rev 1 addition 31/10/13
+    property :user,       String
+    property :password,   String
   end
 
   def initialize(options)
@@ -64,11 +64,11 @@ class VCAP::Services::Couchdb::Node
     if credential
       instance.name = credential["name"]
     else
-      instance.name = UUIDTools::UUID.random_create.to_s
+      instance.name = "db-" + UUIDTools::UUID.random_create.to_s
     end
 
     # creating the database
-    create_database(instance) #rev 1 addition 31/10/13
+    create_database(instance)
     
     begin
       save_instance(instance)
@@ -85,7 +85,6 @@ class VCAP::Services::Couchdb::Node
     gen_credential(instance)
   end
   
-  #rev 1 addition 31/10/13
   def create_database(instance)
     db_name = instance.name
     
