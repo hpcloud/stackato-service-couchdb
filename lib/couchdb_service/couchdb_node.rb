@@ -99,10 +99,20 @@ class VCAP::Services::Couchdb::Node
         @logger.info("Request for database compaction completed successfully.")
       when 304
         @logger.info("Etag not modified since last update.")
+      when 400
+        raise "400 HTTP Error"
+      when 404
+        raise "404 HTTP Error"
+      when 405
+        raise "405 HTTP Error"
+      when 409
+        raise "409 HTTP Error"
+      when 412
+        raise "412 HTTP Error"
       when 500
-        raise "Cannot Create Database: Status Code 500"
+        raise "500 HTTP Error"
       else
-        raise "Cannot Create Database: Status Code Unknown"
+        response.return!(request, result, &block)
       end
     }
 
