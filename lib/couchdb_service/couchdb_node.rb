@@ -89,21 +89,23 @@ class VCAP::Services::Couchdb::Node
   def create_database(instance)
     db_name = instance.name
     
-    RestClient.put ("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}", '') { |response, request, result, &block|
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}",'') { |response, request, result, &block|
       case response.code
       when 200
-      
-      when 404
-        raise "Cannot Create Database: Status Code 404"
-      when 401
-        raise "Cannot Create Database: Status Code 401"
-      when 400
-        raise "Cannot Create Database: Status Code 400"
+        @logger.info("Request completed successfully.")
+      when 201
+        @logger.info("Document created successfully.")
+      when 202
+        @logger.info("Request for database compaction completed successfully.")
+      when 304
+        @logger.info("Etag not modified since last update.")
+      when 500
+        raise "Cannot Create Database: Status Code 500"
       else
         raise "Cannot Create Database: Status Code Unknown"
       end
     }
-	
+
   end
   
   def unprovision(name, credentials = [])
