@@ -87,31 +87,22 @@ class VCAP::Services::Couchdb::Node
   
   def create_database(instance)
     db_name = instance.name
-    
+
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}",'') { |response, request, result, &block|
       case response.code
       when 200
-        @logger.info("Request completed successfully.")
+        @logger.info("200: Request completed successfully.")
       when 201
-        @logger.info("Document created successfully.")
+        @logger.info("201: Document created successfully.")
       when 202
-        @logger.info("Request for database compaction completed successfully.")
+        @logger.info("202: Request for database compaction completed successfully.")
       when 304
-        @logger.info("Etag not modified since last update.")
-      when 400
-        raise "400 HTTP Error"
-      when 404
-        raise "404 HTTP Error"
-      when 405
-        raise "405 HTTP Error"
-      when 409
-        raise "409 HTTP Error"
-      when 412
-        raise "412 HTTP Error"
-      when 500
-        raise "500 HTTP Error"
+        @logger.info("304: Etag not modified since last update.")
       else
-        response.return!(request, result, &block)
+        # 4xx and 5xx HTTP Errors
+        @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+        # pass the response as a argument of a method in order to determine what specific error to throw. (disk full, illegal name, etc.)
+        raise "Cannot Create Database."
       end
     }
 
