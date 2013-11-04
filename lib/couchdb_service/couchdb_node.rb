@@ -3,7 +3,9 @@ require "fileutils"
 require "logger"
 require "datamapper"
 require "uuidtools"
-require "rest_client"  #rev 1 addition 31/10/13
+require "rest_client"
+require "securerandom"
+require "digest/sha1"
 
 module VCAP
   module Services
@@ -112,17 +114,17 @@ class VCAP::Services::Couchdb::Node
     return if name.nil?
     @logger.debug("Unprovision couchdb service: #{name}")
     instance = get_instance(name)
-	
-	#delete the database
-	delete_database(instance)
+  
+  #delete the database
+  delete_database(instance)
     
-	destroy_instance(instance)
+  destroy_instance(instance)
     true
   end
   
   def delete_database(instance)
-	db_name = instance.name
-	RestClient.delete "http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}" 
+    db_name = instance.name
+    RestClient.delete "http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}" 
   end
   
   def bind(name, binding_options, credential = nil)
@@ -132,9 +134,74 @@ class VCAP::Services::Couchdb::Node
     else
       instance = get_instance(name)
     end
-    gen_credential(instance)
+    
+    user = "user-" + SecureRandom.hex(8)
+    salt = SecureRandom.hex(8)
+    password = Digest::SHA1.hexdigest "#{user}#{salt}"
+    
+    create_database_user(name, user, password, salt)
+    
+    generate_bind_credentials(name, user, password)
   end
 
+  def create_database_user(name, user, password, salt)
+    # Insert user information to _users
+    RestClient.put(RestClient.put "http://#{@couchdb_admin}:$#{@couchdb_password}@localhost:5986/_users/#{user}" , 
+      "{
+            \"_id\": \"org.couchdb.user:#{user}\",
+            \"type\": \"user\",
+            \"name\": \"#{user}\",
+            \"roles\": [],
+            \"password_sha\": \"#{password}\"
+            \"salt\" : \"#{salt}\"
+      }" , "Content-Type:application/json"
+    ) { |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot Create Database."
+          end
+      }
+    
+    # Insert information to _security
+    RestClient.put ("http://#{user}:#{password}@localhost:5986/#{name}/_security" , 
+      "{
+        \"admins\": {
+          \"names\":[],
+          \"roles\":[]
+        },
+        \"members\":{
+          \"names\":[#{user}],
+          \"roles\":[]
+        }	
+      }" , "Content-Type:application/json"
+    ) { |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot Create Database."
+          end
+      }
+  end
+  
   def unbind(credential)
     @logger.debug("Unbind service: #{credential.inspect}")
     true
@@ -166,4 +233,15 @@ class VCAP::Services::Couchdb::Node
       "name" => instance.name
     }
   end
+  
+  def generate_bind_credentials(name, user, password)
+    credential = {
+      "name"          => name,
+      "username"      => user,
+      "password"      => password,
+      "host"          => @couchdb_hostname,
+      "database_url"  => "http://#{user}:#{password}@#{@couchdb_hostname}/#{name}"
+    }
+  end
+
 end
