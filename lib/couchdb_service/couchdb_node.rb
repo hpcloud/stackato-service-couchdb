@@ -124,7 +124,7 @@ class VCAP::Services::Couchdb::Node
   
   def delete_database(instance)
     db_name = instance.name
-    RestClient.delete("http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}" ,'') { |response, request, result, &block|
+    RestClient.delete("http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}") { |response, request, result, &block|
       case response.code
       when 200
         @logger.info("200: Request completed successfully.")
