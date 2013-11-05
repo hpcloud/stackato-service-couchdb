@@ -138,7 +138,7 @@ class VCAP::Services::Couchdb::Node
         # 4xx and 5xx HTTP Errors
         @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
         # pass the response as a argument of a method in order to determine what specific error to throw. (disk full, illegal name, etc.)
-        raise "Cannot Create Database."
+        raise "Cannot Delete Database."
       end
     }
     
@@ -163,7 +163,7 @@ class VCAP::Services::Couchdb::Node
 
   def create_database_user(name, user, password, salt)
     # Insert user information to _users
-    RestClient.put(RestClient.put "http://#{@couchdb_admin}:$#{@couchdb_password}@localhost:5986/_users/#{user}" , 
+    RestClient.put(RestClient.put "http://#{@couchdb_admin}:$#{@couchdb_password}@localhost:5986/_users/#{user}",
       "{
             \"_id\": \"org.couchdb.user:#{user}\",
             \"type\": \"user\",
@@ -171,8 +171,7 @@ class VCAP::Services::Couchdb::Node
             \"roles\": [],
             \"password_sha\": \"#{password}\"
             \"salt\" : \"#{salt}\"
-      }" , "Content-Type:application/json"
-    ) { |response, request, result, &block|
+      }" , :content_type => 'application/json') { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -185,23 +184,22 @@ class VCAP::Services::Couchdb::Node
           else
             # 4xx and 5xx HTTP Errors
             @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
-            raise "Cannot Create Database."
+            raise "Cannot Create User."
           end
       }
     
     # Insert information to _security
-    RestClient.put ("http://#{user}:#{password}@localhost:5986/#{name}/_security" , 
+    RestClient.put ("http://#{user}:#{password}@localhost:5986/#{name}/_security",
       "{
         \"admins\": {
-          \"names\":[],
+          \"names\":[#{user}],
           \"roles\":[]
         },
         \"members\":{
-          \"names\":[#{user}],
+          \"names\":[],
           \"roles\":[]
         }	
-      }" , "Content-Type:application/json"
-    ) { |response, request, result, &block|
+      }", :content_type => 'application/json') { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -214,7 +212,7 @@ class VCAP::Services::Couchdb::Node
           else
             # 4xx and 5xx HTTP Errors
             @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
-            raise "Cannot Create Database."
+            raise "Cannot Perform Authorization of User."
           end
       }
   end
