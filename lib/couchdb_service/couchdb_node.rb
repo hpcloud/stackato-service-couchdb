@@ -124,7 +124,7 @@ class VCAP::Services::Couchdb::Node
   
   def delete_database(instance)
     db_name = instance.name
-    RestClient.delete("http://#{@couchdb_admin}:#{couchdb_password}@#{couchdb_hostname}/#{db_name}") { |response, request, result, &block|
+    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}") { |response, request, result, &block|
       case response.code
       when 200
         @logger.info("200: Request completed successfully.")
@@ -163,7 +163,7 @@ class VCAP::Services::Couchdb::Node
 
   def create_database_user(name, user, password, salt)
     # Insert user information to _users
-    RestClient.put(RestClient.put "http://#{@couchdb_admin}:$#{@couchdb_password}@localhost:5986/_users/#{user}",
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5986/_users/#{user}",
       "{
             \"_id\": \"org.couchdb.user:#{user}\",
             \"type\": \"user\",
@@ -171,7 +171,7 @@ class VCAP::Services::Couchdb::Node
             \"roles\": [],
             \"password_sha\": \"#{password}\"
             \"salt\" : \"#{salt}\"
-      }" , :content_type => 'application/json') { |response, request, result, &block|
+      }" , :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -189,7 +189,7 @@ class VCAP::Services::Couchdb::Node
       }
     
     # Insert information to _security
-    RestClient.put ("http://#{user}:#{password}@localhost:5986/#{name}/_security",
+    RestClient.put("http://#{user}:#{password}@localhost:5986/#{name}/_security",
       "{
         \"admins\": {
           \"names\":[#{user}],
@@ -199,7 +199,7 @@ class VCAP::Services::Couchdb::Node
           \"names\":[],
           \"roles\":[]
         }	
-      }", :content_type => 'application/json') { |response, request, result, &block|
+      }", :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
