@@ -163,18 +163,11 @@ class VCAP::Services::Couchdb::Node
 
   def create_database_user(name, user, password, salt)
     
-    user_authentication = "{
-            \"_id\": \"org.couchdb.user:#{user}\",
-            \"type\": \"user\",
-            \"name\": \"#{user}\",
-            \"roles\": [],
-            \"password_sha\": \"#{password}\"
-            \"salt\" : \"#{salt}\"
-      }"
+    user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 'name' => user, 'roles' => [], 'password_sha' => password, 'salt' => salt}
     
     # Insert user information to _users  
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5986/_users/#{user}",
-       user_authentication, :content_type => :json) { |response, request, result, &block|
+       user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -191,20 +184,11 @@ class VCAP::Services::Couchdb::Node
           end
       }
     
-    user_authorization = "{
-        \"admins\": {
-          \"names\":[#{user}],
-          \"roles\":[]
-        },
-        \"members\":{
-          \"names\":[],
-          \"roles\":[]
-        }	
-      }"
+    user_authorization = {'admins' => {'names' => [user], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
     
     # Insert information to _security
     RestClient.put("http://#{user}:#{password}@localhost:5986/#{name}/_security",
-      user_authorization, :content_type => :json) { |response, request, result, &block|
+      user_authorization.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
