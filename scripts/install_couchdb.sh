@@ -54,3 +54,5 @@ respawn
 respawn limit 10 5" > couchdb.conf
 
 sudo mv couchdb.conf /etc/init
+
+sudo reboot
