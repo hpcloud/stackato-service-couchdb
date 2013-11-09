@@ -221,7 +221,7 @@ class VCAP::Services::Couchdb::Node
           end
     }
     
-    security = JSON.parse(securityContent.to_s)
+    security = JSON.parse(securityContent.body)
     
     # inserting authorization for new user
     security["admins"]["names"].push(user.to_s)
@@ -273,7 +273,7 @@ class VCAP::Services::Couchdb::Node
           end
       }
     
-    security = JSON.parse(securityContent.to_s)
+    security = JSON.parse(securityContent.body)
     
     # delete user from security
     security["admins"]["names"].delete("#{user}")
