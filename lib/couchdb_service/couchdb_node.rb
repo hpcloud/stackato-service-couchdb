@@ -187,7 +187,7 @@ class VCAP::Services::Couchdb::Node
     user_authorization = {'admins' => {'names' => ["#{user}"], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
     
     # Insert information to _security
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5984/#{name}/_security",
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security",
       user_authorization.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
