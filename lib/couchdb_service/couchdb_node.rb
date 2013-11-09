@@ -153,21 +153,21 @@ class VCAP::Services::Couchdb::Node
     end
     
     user = "user-" + SecureRandom.hex(8)
-    salt = SecureRandom.hex(8)
-    password = Digest::SHA1.hexdigest "#{user}#{salt}"
+    password = SecureRandom.hex(8)
     
-    create_database_user(name, user, password, salt)
+    create_database_user(name, user, password)
     
     generate_bind_credentials(name, user, password)
   end
 
-  def create_database_user(name, user, password, salt)
+  def create_database_user(name, user, password)
     
-    user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 'name' => user, 'roles' => [], 'password_sha' => password, 'salt' => salt}
+    # inserting user to _users
+    user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 
+      'name' => user, 'roles' => [], 'password' => password}
     
-    # Insert user information to _users  
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5986/_users/org.couchdb.user:#{user}",
-       user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", 
+      user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -182,13 +182,33 @@ class VCAP::Services::Couchdb::Node
             @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
             raise "Cannot Create User."
           end
-      }
-    
-    user_authorization = {'admins' => {'names' => ["#{user}"], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
-    
-    # Insert information to _security
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security",
-      user_authorization.to_json, :content_type => :json) { |response, request, result, &block|
+    }
+
+    # get contents of _security
+    security = RestClient.get ("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+      {:accept => :json}){ |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot get _security contents."
+          end
+    }
+
+    # inserting authorization for new user
+    security["admins"]["names"].push(user.to_s)
+
+    # updating _security
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+      security.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -203,7 +223,7 @@ class VCAP::Services::Couchdb::Node
             @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
             raise "Cannot Perform Authorization of User."
           end
-      }
+    }
   end
   
   def unbind(credential)
