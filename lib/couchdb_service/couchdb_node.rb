@@ -166,7 +166,7 @@ class VCAP::Services::Couchdb::Node
     user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 'name' => user, 'roles' => [], 'password_sha' => password, 'salt' => salt}
     
     # Insert user information to _users  
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5986/_users/#{user}",
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5986/_users/org.couchdb.user:#{user}",
        user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
@@ -184,10 +184,10 @@ class VCAP::Services::Couchdb::Node
           end
       }
     
-    user_authorization = {'admins' => {'names' => [user], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
+    user_authorization = {'admins' => {'names' => ["#{user}"], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
     
     # Insert information to _security
-    RestClient.put("http://#{user}:#{password}@localhost:5986/#{name}/_security",
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@localhost:5984/#{name}/_security",
       user_authorization.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
