@@ -2,6 +2,8 @@
 
 COUCHDB_VERSION=1.5.0
 
+sudo apt-get update
+
 # install the libraries which couchdb needs
 sudo apt-get install -y build-essential
 sudo apt-get install -y erlang-base-hipe
@@ -14,9 +16,9 @@ sudo apt-get install -y libmozjs-dev
 sudo apt-get install -y libcurl4-openssl-dev
 
 # download couchdb source
-http://mirror.csclub.uwaterloo.ca/apache/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz
-tar zxvf apache-couchdb-$COUCHDB_VERSION.gz
-rm apache-couchdb-$COUCHDB_VERSION.gz
+wget http://apache.mirror.vexxhost.com/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz
+tar zxvf apache-couchdb-$COUCHDB_VERSION.tar.gz
+rm apache-couchdb-$COUCHDB_VERSION.tar.gz
 
 # configure couchdb
 cd apache-couchdb-$COUCHDB_VERSION
@@ -28,11 +30,13 @@ sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/run/couchdb"
 
 # install couchdb
 make && sudo make install
+
+cd ../
 rm -rf apache-couchdb-$COUCHDB_VERSION
 
 # permissions
-chown -R stackato:stackato /opt/couchdb-$COUCHDB_VERSION
-chmod 0770 /opt/couchdb-$COUCHDB_VERSION
+sudo chown -R stackato:stackato /opt/couchdb-$COUCHDB_VERSION
+sudo chmod 0770 /opt/couchdb-$COUCHDB_VERSION
 
 # upstart config
 
