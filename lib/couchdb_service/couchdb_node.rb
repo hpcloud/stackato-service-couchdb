@@ -181,13 +181,7 @@ class VCAP::Services::Couchdb::Node
   end
 
   def create_database_user(name, user, password)
-    user_authentication = { 
-      '_id' => "org.couchdb.user:#{user}", 
-      'type' => 'user', 
-      'name' => user, 
-      'roles' => [], 
-      'password' => password 
-    }
+    user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 'name' => "#{user}", 'roles' => [], 'password' => "#{password}" }
     
     # insert user to _users
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", 
