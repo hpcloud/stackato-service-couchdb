@@ -108,7 +108,26 @@ class VCAP::Services::Couchdb::Node
         raise "Cannot Create Database."
       end
     }
-
+    
+    # make dummy content in _security
+    initial_authorization = {'admins' => {'names' => [], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}/_security", 
+      initial_authorization.to_json, :content_type => :json) { |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot Perform Authorization of User."
+          end
+    }
   end
   
   def unprovision(name, credentials = [])
