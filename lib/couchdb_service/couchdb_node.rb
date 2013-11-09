@@ -161,7 +161,6 @@ class VCAP::Services::Couchdb::Node
   end
 
   def create_database_user(name, user, password)
-    
     user_authentication = { 
       '_id' => "org.couchdb.user:#{user}", 
       'type' => 'user', 
@@ -233,9 +232,57 @@ class VCAP::Services::Couchdb::Node
   
   def unbind(credential)
     @logger.debug("Unbind service: #{credential.inspect}")
+    name, user, password = %w(name username password).map{|k| credential[k]}
+    delete_database_user(name, user, password)
     true
   end
 
+  def delete_database_user(name, user, password)
+    # get contents of _security
+    security = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+      {:accept => :json}) { |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot Get Authorization File."
+          end
+      }
+    
+    # delete user from security
+    security["admins"]["names"].delete("#{user}")
+    
+    # update _security
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+      security.to_json, :content_type => :json) { |response, request, result, &block|
+          case response.code
+          when 200
+            @logger.info("200: Request completed successfully.")
+          when 201
+            @logger.info("201: Document created successfully.")
+          when 202
+            @logger.info("202: Request for database compaction completed successfully.")
+          when 304
+            @logger.info("304: Etag not modified since last update.")
+          else
+            # 4xx and 5xx HTTP Errors
+            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
+            raise "Cannot Delete Authorization of User."
+          end
+      }
+    
+    # delete user authentication
+    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}")
+  end
+  
   def start_db
     DataMapper.setup(:default, @local_db)
     DataMapper::auto_upgrade!
