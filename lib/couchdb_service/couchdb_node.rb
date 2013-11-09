@@ -6,6 +6,7 @@ require "uuidtools"
 require "rest_client"
 require "securerandom"
 require "digest/sha1"
+require "json"
 
 module VCAP
   module Services
@@ -189,7 +190,7 @@ class VCAP::Services::Couchdb::Node
     }
 
     # get contents of _security
-    security = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
       {:accept => :json}){ |response, request, result, &block|
           case response.code
           when 200
@@ -206,7 +207,9 @@ class VCAP::Services::Couchdb::Node
             raise "Cannot get _security contents."
           end
     }
-
+    
+    security = JSON.parse(securityContent)
+    
     # inserting authorization for new user
     security["admins"]["names"].push(user.to_s)
 
@@ -239,7 +242,7 @@ class VCAP::Services::Couchdb::Node
 
   def delete_database_user(name, user, password)
     # get contents of _security
-    security = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
       {:accept => :json}) { |response, request, result, &block|
           case response.code
           when 200
@@ -256,6 +259,8 @@ class VCAP::Services::Couchdb::Node
             raise "Cannot Get Authorization File."
           end
       }
+    
+    security = JSON.parse(securityContent)
     
     # delete user from security
     security["admins"]["names"].delete("#{user}")
