@@ -162,10 +162,15 @@ class VCAP::Services::Couchdb::Node
 
   def create_database_user(name, user, password)
     
-    # inserting user to _users
-    user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 
-      'name' => user, 'roles' => [], 'password' => password}
+    user_authentication = { 
+      '_id' => "org.couchdb.user:#{user}", 
+      'type' => 'user', 
+      'name' => user, 
+      'roles' => [], 
+      'password' => password 
+    }
     
+    # insert user to _users
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", 
       user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
@@ -185,7 +190,7 @@ class VCAP::Services::Couchdb::Node
     }
 
     # get contents of _security
-    security = RestClient.get ("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    security = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
       {:accept => :json}){ |response, request, result, &block|
           case response.code
           when 200
