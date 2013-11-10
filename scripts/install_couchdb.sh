@@ -24,9 +24,18 @@ rm apache-couchdb-$COUCHDB_VERSION.tar.gz
 cd apache-couchdb-$COUCHDB_VERSION
 ./configure --prefix=/opt/couchdb-$COUCHDB_VERSION
 
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/lib/couchdb"
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/log/couchdb"
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/run/couchdb"
+# pre-install setup
+sudo mkdir -p "/var/lib/couchdb-$COUCHDB_VERSION"
+sudo mkdir -p "/var/log/couchdb-$COUCHDB_VERSION"
+sudo mkdir -p "/var/run/couchdb-$COUCHDB_VERSION"
+
+sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/lib"
+sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/log"
+sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/run"
+
+sudo ln -s "/var/lib/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/lib/couchdb"
+sudo ln -s "/var/log/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/log/couchdb"
+sudo ln -s "/var/run/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/run/couchdb"
 
 # install couchdb
 make && sudo make install
@@ -36,10 +45,12 @@ rm -rf apache-couchdb-$COUCHDB_VERSION
 
 # permissions
 sudo chown -R stackato:stackato /opt/couchdb-$COUCHDB_VERSION
+sudo chown -R stackato:stackato /var/lib/couchdb-$COUCHDB_VERSION
+sudo chown -R stackato:stackato /var/log/couchdb-$COUCHDB_VERSION
+sudo chown -R stackato:stackato /var/run/couchdb-$COUCHDB_VERSION
 sudo chmod 0770 /opt/couchdb-$COUCHDB_VERSION
 
 # upstart config
-
 echo "# Upstart file at /etc/init/couchdb.conf
 # CouchDB
 
