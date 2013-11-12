@@ -1,69 +1,29 @@
-#!/bin/bash
+#!//usr/bin/env bash
 
 COUCHDB_VERSION=1.5.0
 
-sudo apt-get update
+# make sure we are in this directory
+cd $(dirname $0)
+
+# update repositories to latest
+apt-get update
+
+# install curl in case it's not installed on the system
+apt-get install -y curl
 
 # install the libraries which couchdb needs
-sudo apt-get install -y build-essential
-sudo apt-get install -y erlang-base-hipe
-sudo apt-get install -y erlang-dev
-sudo apt-get install -y erlang-manpages
-sudo apt-get install -y erlang-eunit
-sudo apt-get install -y erlang-nox
-sudo apt-get install -y libicu-dev
-sudo apt-get install -y libmozjs-dev
-sudo apt-get install -y libcurl4-openssl-dev
+apt-get install -y build-essential erlang-base-hipe erlang-dev erlang-manpages erlang-eunit erlang-nox libicu-dev libmozjs-dev libcurl4-openssl-dev
 
 # download couchdb source
-wget http://apache.mirror.vexxhost.com/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz
-tar zxvf apache-couchdb-$COUCHDB_VERSION.tar.gz
-rm apache-couchdb-$COUCHDB_VERSION.tar.gz
+curl http://apache.mirror.vexxhost.com/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz | tar xzvf -
 
-# configure couchdb
-cd apache-couchdb-$COUCHDB_VERSION
-./configure --prefix=/opt/couchdb-$COUCHDB_VERSION
+pushd apache-couchdb-$COUCHDB_VERSION
+    # install couchdb in its default location
+    ./configure && make && make install
+popd
 
-# pre-install setup
-sudo mkdir -p "/var/lib/couchdb-$COUCHDB_VERSION"
-sudo mkdir -p "/var/log/couchdb-$COUCHDB_VERSION"
-sudo mkdir -p "/var/run/couchdb-$COUCHDB_VERSION"
-
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/lib"
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/log"
-sudo mkdir -p "/opt/couchdb-$COUCHDB_VERSION/var/run"
-
-sudo ln -s "/var/lib/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/lib/couchdb"
-sudo ln -s "/var/log/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/log/couchdb"
-sudo ln -s "/var/run/couchdb-$COUCHDB_VERSION" "/opt/couchdb-$COUCHDB_VERSION/var/run/couchdb"
-
-# install couchdb
-make && sudo make install
-
-cd ../
+# installation cleanup
 rm -rf apache-couchdb-$COUCHDB_VERSION
 
-# permissions
-sudo chown -R stackato:stackato /opt/couchdb-$COUCHDB_VERSION
-sudo chown -R stackato:stackato /var/lib/couchdb-$COUCHDB_VERSION
-sudo chown -R stackato:stackato /var/log/couchdb-$COUCHDB_VERSION
-sudo chown -R stackato:stackato /var/run/couchdb-$COUCHDB_VERSION
-sudo chmod 0770 /opt/couchdb-$COUCHDB_VERSION
-
-# upstart config
-echo "# Upstart file at /etc/init/couchdb.conf
-# CouchDB
-
-start on runlevel [2345]
-stop on runlevel [06]
-
-script
-   exec su stackato /opt/couchdb-$COUCHDB_VERSION/bin/couchdb
-end script
-
-respawn
-respawn limit 10 5" > couchdb.conf
-
-sudo mv couchdb.conf /etc/init
-
-sudo /sbin/start couchdb
+# start couchdb
+service start couchdb
