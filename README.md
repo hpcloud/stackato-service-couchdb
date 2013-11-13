@@ -1,12 +1,11 @@
 CouchDB Service for Stackato
 =========================
 
-This CouchDB Service for Stackato is under active development.  It is currently based on the Echo Service sample code.
+This CouchDB Service for Stackato is under active development.  It is based partly on the Echo Service sample code.
 
 This sample is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
 with some additional configuration (e.g for `kato` and `supervisord`)
-and other minor differences (e.g. the Gemfile). The instructions
-here are for [Stackato
+and other minor differences. The instructions here are for [Stackato
 2.6](http://www.activestate.com/stackato/get_stackato).
 
 ## Copying/Cloning the Service to Stackato
@@ -29,8 +28,8 @@ Execute scripts/install_couchdb.sh and scripts/bootstrap.sh:
     $ ./install_couchdb.sh
     $ ./bootstrap.sh
 
-Bootstrap.sh will prompt for the cloud controller URL. (e.g. api.stackato-wxyz.local)
-After both scripts finish executing, service should start running.
+Bootstrap.sh will prompt for the cloud controller URL (e.g. api.stackato-wxyz.local).  
+After both scripts finish executing, the service should start running.
 
 ## Edit the config files
 
@@ -38,7 +37,7 @@ Some settings in the default files in the config/ directory will need to be modi
 
 * `cloud_controller_uri`: This needs to match the API endpoint of your
   system (e.g. api.stackato-wxyz.local)
-* `token`: can be any string, but we will need to add this auth token
+* `token`: This can be any string, but we will need to add this auth token
   to the cloud_controller in a later step
 * `mbus`: This should match the setting for other services. You can check
   the correct setting using `kato config get redis_node mbus`
