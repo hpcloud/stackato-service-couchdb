@@ -25,8 +25,8 @@ Alternatively, copy a local checkout to Stackato using SCP:
 Execute scripts/install_couchdb.sh and scripts/bootstrap.sh:
 
     $ cd /scripts
-    $ ./install_couchdb.sh
-    $ ./bootstrap.sh
+    $ sh ./install_couchdb.sh
+    $ sh ./bootstrap.sh
 
 Bootstrap.sh will prompt for the cloud controller URL (e.g. api.stackato-wxyz.local).  
 After both scripts finish executing, the service should start running.
