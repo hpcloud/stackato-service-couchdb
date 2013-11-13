@@ -21,12 +21,16 @@ Alternatively, copy a local checkout to Stackato using SCP:
 
     $ scp -r stackato-couchdbservice stackato@stackato-vm.local:~/stackato/vcap/services/couchdb
 
-## Install the service gems
+## Installation
 
-On the VM, go to the 'couchdb' directory and run 'bundle update':
+Execute scripts/install_couchdb.sh and scripts/bootstrap.sh:
 
-    $ cd /s/vcap/services/couchdb
-    $ bundle install 
+    $ cd /scripts
+    $ ./install_couchdb.sh
+    $ ./bootstrap.sh
+
+Bootstrap.sh will prompt for the cloud controller URL. (e.g. api.stackato-wxyz.local)
+After both scripts finish executing, service should start running.
 
 ## Edit the config files
 
