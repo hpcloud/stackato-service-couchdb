@@ -268,7 +268,10 @@ class VCAP::Services::Couchdb::Node
       }
     
     # delete user authentication
-    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}") { |response, request, result, &block|
+    response =  RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", {:accept => :json})
+    response = JSON.parse(response)
+    rev = response["_rev"]
+    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}?rev=#{rev}") { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
