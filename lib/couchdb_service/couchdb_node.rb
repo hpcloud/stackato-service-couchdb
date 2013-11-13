@@ -203,23 +203,8 @@ class VCAP::Services::Couchdb::Node
     }
 
     # get contents of _security
-    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
-      {:accept => :json}){ |response, request, result, &block|
-          case response.code
-          when 200
-            @logger.info("200: Request completed successfully.")
-          when 201
-            @logger.info("201: Document created successfully.")
-          when 202
-            @logger.info("202: Request for database compaction completed successfully.")
-          when 304
-            @logger.info("304: Etag not modified since last update.")
-          else
-            # 4xx and 5xx HTTP Errors
-            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
-            raise "Cannot get _security contents."
-          end
-    }
+    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security",
+      {:accept => :json})
     
     securityContent = JSON.parse(securityContent)
     
@@ -228,7 +213,7 @@ class VCAP::Services::Couchdb::Node
 
     # updating _security
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
-      security.to_json, :content_type => :json) { |response, request, result, &block|
+      securityContent.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -256,31 +241,16 @@ class VCAP::Services::Couchdb::Node
   def delete_database_user(name, user, password)
     # get contents of _security
     securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
-      {:accept => :json}) { |response, request, result, &block|
-          case response.code
-          when 200
-            @logger.info("200: Request completed successfully.")
-          when 201
-            @logger.info("201: Document created successfully.")
-          when 202
-            @logger.info("202: Request for database compaction completed successfully.")
-          when 304
-            @logger.info("304: Etag not modified since last update.")
-          else
-            # 4xx and 5xx HTTP Errors
-            @logger.error(response.code.to_s + " HTTP Error\n" + response.to_s);
-            raise "Cannot Get Authorization File."
-          end
-      }
+      {:accept => :json})
     
-    securityContent = JSON.parse(securityContent.body)
+    securityContent = JSON.parse(securityContent)
     
     # delete user from security
     securityContent["admins"]["names"].delete("#{user}")
     
     # update _security
     RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
-      security.to_json, :content_type => :json) { |response, request, result, &block|
+      securityContent.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
