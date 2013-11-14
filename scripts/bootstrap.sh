@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 
+cd $(dirname $0)
+
+# Set cc url in config
+echo "Please enter cloud controller api url (api.stackato.local): "
+read CCURL
+echo "cloud_controller_uri: $CCURL" >> /s/vcap/services/couchdb/config/couchdb_gateway.yml
+
 # Stop kato and supervisord for reconfiguration
 kato stop
 stop-supervisord
 
-# Copy couchdb to the services folder and update gems
-cp -R /home/stackato/stackato-couchdb /s/vcap/services/couchdb
+# Move couchdb to the services folder and update gems
+if [ ! -d /s/vcap/services/couchdb ]; then
+  mv $(dirname $0)/../../ /s/vcap/services/couchdb
+fi
 cd /s/vcap/services/couchdb && bundle install 
-rm -rf /home/stackato/stackato-couchdb
 
 # Copy the stackato configuration files to supervisord
 cp /s/vcap/services/couchdb/stackato-conf/couchdb_* /s/etc/supervisord.conf.d/
@@ -18,11 +26,6 @@ cat /s/vcap/services/couchdb/stackato-conf/roles-snippet.yml >> /s/etc/kato/role
 
 # Restart supervisord
 start-supervisord
-
-# Set cc url in config
-echo "Please enter cloud controller api url (api.stackato.local): "
-read CCURL
-echo "cloud_controller_uri: $CCURL" >> /s/vcap/services/couchdb/config/couchdb_gateway.yml
 
 # Add the authentication token to the cloud controller and set it in config
 SERVICE_TOKEN=`date +%s | sha256sum | base64 | head -c 10`
@@ -42,7 +45,7 @@ cat /s/vcap/services/couchdb/config/couchdb_gateway.yml | kato config set couchd
 cat /s/vcap/services/couchdb/config/couchdb_node.yml | kato config set couchdb_node / --yaml
 
 # setup first couchdb admin
-curl -X PUT http://$COUCHDB_HOSTNAME/_config/admins/admin -d'"'$COUCHDB_PASSWORD'"'
+curl -X PUT http://$COUCHDB_HOSTNAME:$COUCHDB_PORT/_config/admins/admin -d'"'$COUCHDB_PASSWORD'"'
 
 # Add the role and restart kato
 kato role add couchdb

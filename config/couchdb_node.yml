@@ -12,4 +12,3 @@ node_id: couchdb_node_1
 supported_versions: ["1.0"]
 default_version: "1.0"
 couchdb_admin: admin
-
