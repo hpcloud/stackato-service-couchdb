@@ -36,12 +36,12 @@ class VCAP::Services::Couchdb::Node
     super(options)
 
     @local_db = options[:local_db]
-    @port = options[:port]
     @base_dir = options[:base_dir]
     @supported_versions = ["1.0"]
     @couchdb_admin = options[:couchdb_admin]
     @couchdb_password = options[:couchdb_password]
-    @couchdb_hostname = options[:couchdb_hostname]   #rev 1 addition 31/10/13
+    @couchdb_hostname = options[:couchdb_hostname]
+    @port = options[:port]
   end
 
   def pre_send_announcement
@@ -91,7 +91,7 @@ class VCAP::Services::Couchdb::Node
   def create_database(instance)
     db_name = instance.name
 
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}",'') { |response, request, result, &block|
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{db_name}",'') { |response, request, result, &block|
       case response.code
       when 200
         @logger.info("200: Request completed successfully.")
@@ -111,7 +111,7 @@ class VCAP::Services::Couchdb::Node
     
     # make dummy content in _security
     initial_authorization = {'admins' => {'names' => [], 'roles' => []}, 'members' => {'names' => [], 'roles' => []}}
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}/_security", 
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{db_name}/_security", 
       initial_authorization.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
@@ -144,7 +144,7 @@ class VCAP::Services::Couchdb::Node
   
   def delete_database(instance)
     db_name = instance.name
-    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{db_name}") { |response, request, result, &block|
+    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{db_name}") { |response, request, result, &block|
       case response.code
       when 200
         @logger.info("200: Request completed successfully.")
@@ -184,7 +184,7 @@ class VCAP::Services::Couchdb::Node
     user_authentication = {'_id' => "org.couchdb.user:#{user}", 'type' => 'user', 'name' => "#{user}", 'roles' => [], 'password' => "#{password}" }
     
     # insert user to _users
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", 
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/_users/org.couchdb.user:#{user}", 
       user_authentication.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
@@ -203,7 +203,7 @@ class VCAP::Services::Couchdb::Node
     }
 
     # get contents of _security
-    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security",
+    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{name}/_security",
       {:accept => :json})
     
     securityContent = JSON.parse(securityContent)
@@ -212,7 +212,7 @@ class VCAP::Services::Couchdb::Node
     securityContent["admins"]["names"].push(user)
 
     # updating _security
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{name}/_security", 
       securityContent.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
@@ -240,7 +240,7 @@ class VCAP::Services::Couchdb::Node
 
   def delete_database_user(name, user, password)
     # get contents of _security
-    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    securityContent = RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{name}/_security", 
       {:accept => :json})
     
     securityContent = JSON.parse(securityContent)
@@ -249,7 +249,7 @@ class VCAP::Services::Couchdb::Node
     securityContent["admins"]["names"].delete("#{user}")
     
     # update _security
-    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/#{name}/_security", 
+    RestClient.put("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/#{name}/_security", 
       securityContent.to_json, :content_type => :json) { |response, request, result, &block|
           case response.code
           when 200
@@ -268,10 +268,10 @@ class VCAP::Services::Couchdb::Node
       }
     
     # delete user authentication
-    response =  RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}", {:accept => :json})
+    response =  RestClient.get("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/_users/org.couchdb.user:#{user}", {:accept => :json})
     response = JSON.parse(response)
     rev = response["_rev"]
-    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}/_users/org.couchdb.user:#{user}?rev=#{rev}") { |response, request, result, &block|
+    RestClient.delete("http://#{@couchdb_admin}:#{@couchdb_password}@#{@couchdb_hostname}:#{@port}/_users/org.couchdb.user:#{user}?rev=#{rev}") { |response, request, result, &block|
           case response.code
           when 200
             @logger.info("200: Request completed successfully.")
@@ -322,7 +322,8 @@ class VCAP::Services::Couchdb::Node
       "username"      => user,
       "password"      => password,
       "host"          => @couchdb_hostname,
-      "database_url"  => "http://#{user}:#{password}@#{@couchdb_hostname}/#{name}"
+      "database_url"  => "http://#{user}:#{password}@#{@local_ip}:#{@port}/#{name}"
+      "couchdb_url"   => "http://#{user}:#{password}@#{@local_ip}:#{@port}/#{name}"
     }
   end
 

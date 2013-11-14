@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Stop kato and supervisord for reconfiguration
 kato stop
@@ -31,9 +31,11 @@ echo "token: $SERVICE_TOKEN" >> /s/vcap/services/couchdb/config/couchdb_gateway.
 
 # Set couchdb_password / couchdb_hostname in config
 COUCHDB_PASSWORD=`date +%s | sha256sum | base64 | head -c 16`
-COUCHDB_HOSTNAME=localhost:5984
+COUCHDB_HOSTNAME=localhost
+COUCHDB_PORT=5984
 echo "couchdb_password: $COUCHDB_PASSWORD" >> /s/vcap/services/couchdb/config/couchdb_node.yml
 echo "couchdb_hostname: $COUCHDB_HOSTNAME" >> /s/vcap/services/couchdb/config/couchdb_node.yml
+echo "port: $COUCHDB_PORT" >> /s/vcap/services/couchdb/config/couchdb_node.yml
 
 # set kato config
 cat /s/vcap/services/couchdb/config/couchdb_gateway.yml | kato config set couchdb_gateway / --yaml

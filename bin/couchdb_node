@@ -25,10 +25,10 @@ class VCAP::Services::Couchdb::NodeBin < VCAP::Services::Base::NodeBin
   end
 
   def additional_config(options, config)
-    options[:port] = parse_property(config, "port", Integer)
     options[:couchdb_admin] = parse_property(config, "couchdb_admin", String)
     options[:couchdb_password] = parse_property(config, "couchdb_password", String)
     options[:couchdb_hostname] = parse_property(config, "couchdb_hostname", String)
+    options[:port] = parse_property(config, "port", Integer)
     return options
   end
 

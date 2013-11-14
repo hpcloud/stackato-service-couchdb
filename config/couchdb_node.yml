@@ -9,7 +9,7 @@ logging:
   level: debug
 pid: /var/vcap/sys/run/couchdb_node.pid
 node_id: couchdb_node_1
-port: 5002
 supported_versions: ["1.0"]
 default_version: "1.0"
 couchdb_admin: admin
+
