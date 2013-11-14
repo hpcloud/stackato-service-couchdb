@@ -321,8 +321,9 @@ class VCAP::Services::Couchdb::Node
       "name"          => name,
       "username"      => user,
       "password"      => password,
-      "host"          => @couchdb_hostname,
-      "database_url"  => "http://#{user}:#{password}@#{@local_ip}:#{@port}/#{name}"
+      "host"          => @local_ip,
+      "port"          => @port,
+      "database_url"  => "http://#{user}:#{password}@#{@local_ip}:#{@port}/#{name}",
       "couchdb_url"   => "http://#{user}:#{password}@#{@local_ip}:#{@port}/#{name}"
     }
   end
