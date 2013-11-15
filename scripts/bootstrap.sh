@@ -2,10 +2,8 @@
 
 cd $(dirname $0)
 
-# Set cc url in config
 echo "Please enter cloud controller api url (api.stackato.local): "
 read CCURL
-echo "cloud_controller_uri: $CCURL" >> /s/vcap/services/couchdb/config/couchdb_gateway.yml
 
 # Stop kato and supervisord for reconfiguration
 kato stop
@@ -13,7 +11,8 @@ stop-supervisord
 
 # Move couchdb to the services folder and update gems
 if [ ! -d /s/vcap/services/couchdb ]; then
-  mv $(dirname $0)/../../ /s/vcap/services/couchdb
+  cd ../../
+  mv stackato-couchdb /s/vcap/services/couchdb
 fi
 cd /s/vcap/services/couchdb && bundle install 
 
@@ -26,6 +25,9 @@ cat /s/vcap/services/couchdb/stackato-conf/roles-snippet.yml >> /s/etc/kato/role
 
 # Restart supervisord
 start-supervisord
+
+# Set cc url in config
+echo "cloud_controller_uri: $CCURL" >> /s/vcap/services/couchdb/config/couchdb_gateway.yml
 
 # Add the authentication token to the cloud controller and set it in config
 SERVICE_TOKEN=`date +%s | sha256sum | base64 | head -c 10`
