@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 COUCHDB_VERSION=1.5.0
+COUCHDB_ROOT=/opt/couchdb-$COUCHDB_VERSION
 
 # make sure we are in this directory
 cd $(dirname $0)
@@ -19,11 +20,29 @@ curl http://apache.mirror.vexxhost.com/couchdb/source/$COUCHDB_VERSION/apache-co
 
 pushd apache-couchdb-$COUCHDB_VERSION
     # install couchdb in its default location
-    ./configure && make && make install
+    ./configure --prefix=$COUCHDB_ROOT && make && make install
 popd
+
+# give the stackato user proper RW perms
+chown -R stackato:stackato $COUCHDB_ROOT
 
 # installation cleanup
 rm -rf apache-couchdb-$COUCHDB_VERSION
 
+# upstart config
+cat << EOF > /etc/init/couchdb.conf
+# couchdb upstart
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+script
+    exec su stackato /opt/couchdb-$COUCHDB_VERSION/bin/couchdb
+end script
+
+respawn
+respawn limit 10 5
+EOF
+
 # start couchdb
-service start couchdb
+start couchdb
