@@ -20,12 +20,16 @@ Alternatively, copy a local checkout to Stackato using SCP:
 
     $ scp -r stackato-couchdbservice stackato@stackato-vm.local:~/stackato/vcap/services/couchdb
 
+## Customize CouchDB
+
+You can customize your couchdb installation by editing `resources/default.ini` before running the install script.
+
 ## Installation
 
 Execute scripts/install_couchdb.sh and scripts/bootstrap.sh:
 
     $ cd /scripts
-    $ sudo ./install_couchdb.sh
+    $ sudo ./install-couchdb.sh
     $ ./bootstrap.sh
 
 Bootstrap.sh will prompt for the cloud controller URL (e.g. api.stackato-wxyz.local).  

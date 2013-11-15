@@ -2,6 +2,7 @@
 
 COUCHDB_VERSION=1.5.0
 COUCHDB_ROOT=/opt/couchdb-$COUCHDB_VERSION
+RESOURCES_ROOT=../resources
 
 # make sure we are in this directory
 cd $(dirname $0)
@@ -31,7 +32,9 @@ rm -rf apache-couchdb-$COUCHDB_VERSION
 
 # set CouchDB defaults.
 COUCHDB_HOSTNAME=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
-sed -i.bak s/"bind_address = 127.0.0.1"/"bind_address = $COUCHDB_HOSTNAME"/g $COUCHDB_ROOT/etc/couchdb/default.ini
+sed -i.bak s/"bind_address = 127.0.0.1"/"bind_address = $COUCHDB_HOSTNAME"/g $RESOURCES_ROOT/default.ini
+rm $COUCHDB_ROOT/etc/couchdb/default.ini
+cp $RESOURCES_ROOT/default.ini $COUCHDB_ROOT/etc/couchdb/
 
 # upstart config
 cat << EOF > /etc/init/couchdb.conf
