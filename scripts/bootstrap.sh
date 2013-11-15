@@ -36,7 +36,7 @@ echo "token: $SERVICE_TOKEN" >> /s/vcap/services/couchdb/config/couchdb_gateway.
 
 # Set couchdb_password / couchdb_hostname in config
 COUCHDB_PASSWORD=`date +%s | sha256sum | base64 | head -c 16`
-COUCHDB_HOSTNAME=localhost
+COUCHDB_HOSTNAME=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
 COUCHDB_PORT=5984
 echo "couchdb_password: $COUCHDB_PASSWORD" >> /s/vcap/services/couchdb/config/couchdb_node.yml
 echo "couchdb_hostname: $COUCHDB_HOSTNAME" >> /s/vcap/services/couchdb/config/couchdb_node.yml
@@ -46,7 +46,8 @@ echo "port: $COUCHDB_PORT" >> /s/vcap/services/couchdb/config/couchdb_node.yml
 cat /s/vcap/services/couchdb/config/couchdb_gateway.yml | kato config set couchdb_gateway / --yaml
 cat /s/vcap/services/couchdb/config/couchdb_node.yml | kato config set couchdb_node / --yaml
 
-# setup first couchdb admin
+# setup first couchdb admin and hostname
+curl -X PUT http://localhost:$COUCHDB_PORT/_config/httpd/bind_address -d '"'$COUCHDB_HOSTNAME'"'
 curl -X PUT http://$COUCHDB_HOSTNAME:$COUCHDB_PORT/_config/admins/admin -d'"'$COUCHDB_PASSWORD'"'
 
 # Add the role and restart kato
