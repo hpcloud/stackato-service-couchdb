@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
 COUCHDB_VERSION=1.5.0
-<<<<<<< HEAD
 COUCHDB_ROOT=/opt/couchdb-$COUCHDB_VERSION
-=======
->>>>>>> 81eed0b485441ac5bb869ffb9ea450c54e1d2016
 
 # make sure we are in this directory
 cd $(dirname $0)
