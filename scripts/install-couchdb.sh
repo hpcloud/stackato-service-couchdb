@@ -29,6 +29,10 @@ chown -R stackato:stackato $COUCHDB_ROOT
 # installation cleanup
 rm -rf apache-couchdb-$COUCHDB_VERSION
 
+# set CouchDB defaults.
+COUCHDB_HOSTNAME=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
+sed -i.bak s/"bind_address = 127.0.0.1"/"bind_address = $COUCHDB_HOSTNAME"/g $COUCHDB_ROOT/etc/couchdb/default.ini
+
 # upstart config
 cat << EOF > /etc/init/couchdb.conf
 # couchdb upstart

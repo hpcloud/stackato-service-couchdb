@@ -47,7 +47,7 @@ cat /s/vcap/services/couchdb/config/couchdb_gateway.yml | kato config set couchd
 cat /s/vcap/services/couchdb/config/couchdb_node.yml | kato config set couchdb_node / --yaml
 
 # setup first couchdb admin and hostname
-curl -X PUT http://localhost:$COUCHDB_PORT/_config/httpd/bind_address -d '"'$COUCHDB_HOSTNAME'"'
+# curl -X PUT http://localhost:$COUCHDB_PORT/_config/httpd/bind_address -d '"'$COUCHDB_HOSTNAME'"'
 curl -X PUT http://$COUCHDB_HOSTNAME:$COUCHDB_PORT/_config/admins/admin -d'"'$COUCHDB_PASSWORD'"'
 
 # Add the role and restart kato
