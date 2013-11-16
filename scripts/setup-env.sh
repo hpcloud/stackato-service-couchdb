@@ -11,10 +11,10 @@ FINDME="\\ *only_item\\(vcap_services\\[\\'mysql\\'\\]\\)\\ *do[\\ ]*\\|s\\|"
 LINE=`awk '/'"$FINDME"'/{print NR - 1}' /s/vcap/common/lib/vcap/services_env.rb`
 
 #set replacement lines
-NEW_LINE1="\n\\ \\ only_item\\(vcap_services\\[\\'couchdb\\'\\]\\)\\ do\\ \\|s\\|\n"
-NEW_LINE2="\\ \\ \\ \\ c\\ =\\ s\\[:credentials\\]\n"
-NEW_LINE3="\\ \\ \\ \\ e\\[\\\"COUCHDB_URL\\\"\\]\\ \\=\\ \\\"\\#\\{c\\[:couchdb_url\\]\\}\\\"\n"
-NEW_LINE4="\\ \\ end\n"
+NEW_LINE1="\n\\ \\ \\ \\ only_item\\(vcap_services\\[\\'couchdb\\'\\]\\)\\ do\\ \\|s\\|\n"
+NEW_LINE2="\\ \\ \\ \\ \\ \\ c\\ =\\ s\\[:credentials\\]\n"
+NEW_LINE3="\\ \\ \\ \\ \\ \\ e\\[\\\"COUCHDB_URL\\\"\\]\\ \\=\\ \\\"\\#\\{c\\[:couchdb_url\\]\\}\\\"\n"
+NEW_LINE4="\\ \\ \\ \\ end\n"
 
 #insert the new lines to services_env.rb
 sed -i ''"$LINE"'s/.*/'"$NEW_LINE1$NEW_LINE2$NEW_LINE3$NEW_LINE4"'/' /s/vcap/common/lib/vcap/services_env.rb
