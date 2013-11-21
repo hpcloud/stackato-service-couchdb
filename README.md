@@ -1,9 +1,7 @@
 CouchDB Service for Stackato
 =========================
 
-This CouchDB Service for Stackato is under active development. It is based partly on the Echo Service sample code.
-
-This sample is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
+The Stackato CouchDB service is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
 with some additional configuration (e.g for `kato` and `supervisord`)
 and other minor differences. The instructions here are for [Stackato
 2.10.6](http://www.activestate.com/stackato/get_stackato).
@@ -12,7 +10,7 @@ and other minor differences. The instructions here are for [Stackato
 
 Make sure you followed the Stackato [quickstart guide](http://docs.stackato.com/quick-start/index.html).
 
-**Tip:**: To find out the Cloud Controller API URL for a microcloud, run this command on the VM: 
+**Tip:**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the stackato VM: 
 
     echo api.`hostname`.local
 
@@ -23,15 +21,13 @@ directly into a `vcap/services/couchdb` directory:
 
     $ git clone https://github.com/shsu/stackato-couchdb.git /s/vcap/services/couchdb
 
-**Alternatively**, you can scp a local checkout of stackato-couchdb to Stackato using SCP.
+**Alternatively**, you can scp a local checkout of stackato-couchdb to Stackato.
 
-## Customize CouchDB (Optional)
+## Apache CouchDB & Service Installation
 
 You can customize your couchdb installation by editing `resources/default.ini` before running the install script.
 
-## Installation
-
-Execute `scripts/install-couchdb.sh` and `scripts/bootstrap.sh` **on the stackato VM**:
+Execute `scripts/install-couchdb.sh` and `scripts/bootstrap.sh` on the stackato VM:
 
     $ cd /s/vcap/services/couchdb/scripts
     $ sudo ./install-couchdb.sh
@@ -66,13 +62,26 @@ To create a new service:
     $ stackato create-service couchdb
     Creating Service [couchdb-503db]: OK
 
-## Edit the config files (Optional)
+## Optional Configurations:
 
-Some settings in the default files in the config/ directory may need to be modified. This may include:
+* To have `COUCHDB_URL` available in your environment, add the following snippet of code to 
+`/s/vcap/common/lib/vcap/services_env.rb` at around line 66.
 
-* `mbus`: This should match the setting for other services. You can check
-  the correct setting using:
+        only_item(vcap_services['couchdb']) do |s|
+            c = s[:credentials]
+            e["COUCHDB_URL"] = "#{c[:couchdb_url]}"
+        end
 
-      kato config get couchdb_node mbus
+## How to use this Stackato CouchDB Service:
 
-* `COUCHDB_URL`: 
+You will need to parse the `$VCAP_SERVICES` or `$COUCHDB_URL` (if available) environment variables.
+
+Below is a PHP example:
+
+    $services = getenv("VCAP_SERVICES");
+    $services_json = json_decode($services,true);
+    $couchdb_conf = $services_json["couchdb"][0]["credentials"];
+    
+    $couch_connection_url = "http://".$couchdb_conf["username"].":".$couchdb_conf["password"]."@"
+        .$couchdb_conf["host"].":".$couchdb_conf["port"];
+    $couch_connection_db = $couchdb_conf["name"];
