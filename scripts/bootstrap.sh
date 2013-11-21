@@ -2,8 +2,16 @@
 
 cd $(dirname $0)
 
-echo "Please enter cloud controller api url (api.stackato.local): "
+SAMPLE_CC_URL=api.`hostname`.local
+echo "Please enter cloud controller api url: (eg. $SAMPLE_CC_URL): "
 read CCURL
+
+read -p "Confirm that $CCURL is correct: (y/n) "
+if [ $REPLY != "y" ]; then
+	exit 1
+fi
+
+echo $CCURL
 
 # Stop kato and supervisord for reconfiguration
 kato stop
@@ -54,4 +62,4 @@ curl -X PUT http://$COUCHDB_HOSTNAME:$COUCHDB_PORT/_config/admins/admin -d'"'$CO
 kato role add couchdb
 kato start
 
-echo Success!
+echo CouchDB Service Successfully Installed!
