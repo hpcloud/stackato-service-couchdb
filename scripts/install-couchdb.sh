@@ -7,6 +7,12 @@ RESOURCES_ROOT=../resources
 # make sure we are in this directory
 cd $(dirname $0)
 
+# check if script is executed with root
+if [[ $EUID -ne 0 ]]; then
+  echo "You must be root to do this." 1>&2
+  exit 100
+fi
+
 # update repositories to latest
 apt-get update
 
