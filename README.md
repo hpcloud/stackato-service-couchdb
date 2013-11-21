@@ -16,9 +16,7 @@ vcap/services/couchdb directory:
 
     $ git clone https://github.com/shsu/stackato-couchdb.git /s/vcap/services/couchdb
 
-Alternatively, copy a local checkout to Stackato using SCP:
-
-    $ scp -r stackato-couchdbservice stackato@stackato-vm.local:~/stackato/vcap/services/couchdb
+**Alternatively**, you can scp a local checkout of stackato-couchdb to Stackato using SCP.
 
 ## Customize CouchDB
 
