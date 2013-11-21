@@ -8,9 +8,9 @@ and other minor differences. The instructions here are for [Stackato
 
 ## Prerequisites
 
-Make sure you followed the Stackato [quickstart guide](http://docs.stackato.com/quick-start/index.html).
+Make sure you followed the [Stackato quickstart guide](http://docs.stackato.com/quick-start/index.html) before continuing.
 
-**Tip:**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the stackato VM: 
+**Tip**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the stackato VM: 
 
     echo api.`hostname`.local
 
