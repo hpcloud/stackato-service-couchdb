@@ -26,13 +26,15 @@ pushd tasks
 	stackato bind-service $TEST_SERVICE_NAME $APP_NAME_1 && sleep 2
 	stackato bind-service $TEST_SERVICE_NAME $APP_NAME_2 && sleep 2
 
-	# Echo the VCAP_SERVICES env variable. Credentials for connecting to the 2 databases will be shown.
-	echo "==================VCAP_SERVICES FOR $APP_NAME_1=================="
+	# Echo env variable. Credentials for connecting to the 2 databases will be shown.
+	echo "==================ENV FOR $APP_NAME_1=================="
 	stackato ssh $APP_NAME_1 'echo $VCAP_SERVICES | json'
+	stackato ssh $APP_NAME_1 'echo $COUCHDB_URL'
 	read -p "Press any key to continue..."
 	
-	echo "==================VCAP_SERVICES FOR $APP_NAME_2=================="
+	echo "==================ENV FOR $APP_NAME_2=================="
 	stackato ssh $APP_NAME_2 'echo $VCAP_SERVICES | json'
+	stackato ssh $APP_NAME_2 'echo $COUCHDB_URL'
 	read -p "Press any key to continue..."
 
 	read -p "Do you want to open the deployed applications? (y/n)? "
@@ -42,7 +44,7 @@ pushd tasks
 		read -p "Press any key to continue..."
 	fi
 
-	echo "Deleting apps. Stackato Client may prompt for service deletion."
+	echo "Deleting apps and their services."
 	stackato delete $APP_NAME_1 -n
 	stackato delete $APP_NAME_2 -n
 	stackato delete-service $APP_NAME_1-db
