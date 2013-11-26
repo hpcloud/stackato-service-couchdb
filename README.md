@@ -65,12 +65,15 @@ To create a new service:
 ## Optional Configurations:
 
 * To have `COUCHDB_URL` available in your environment, add the following snippet of code to 
-`/s/vcap/common/lib/vcap/services_env.rb` at around line 66.
+`/s/vcap/common/lib/vcap/services_env.rb` after the comment about 
+"# Add individual environment variables" (around line 60):
 
         only_item(vcap_services['couchdb']) do |s|
             c = s[:credentials]
-            e["COUCHDB_URL"] = "#{c[:couchdb_url]}"
+            e["COUCHDB_URL"] = c[:couchdb_url]
         end
+        
+Save the file then restart stackato components by executing: `kato restart`.
 
 ## How to use this Stackato CouchDB Service:
 
