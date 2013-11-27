@@ -1,12 +1,12 @@
-# Copyright (c) 2009-2011 VMware, Inc.
+# Copyright (couchdbc) 2009-2011 VMware, Inc.
 $:.unshift(File.dirname(__FILE__))
 require 'spec_helper'
 
-require 'echo_service/echo_node'
+require 'couchdb_service/couchdb_node'
 
 module VCAP
   module Services
-    module Echo
+    module Couchdb
       class Node
 
       end
@@ -16,16 +16,16 @@ end
 
 module VCAP
   module Services
-    module Echo
-      class EchoError
+    module Couchdb
+      class CouchdbError
           attr_reader :error_code
       end
     end
   end
 end
 
-describe "Echo service node" do
-  include VCAP::Services::Echo
+describe "Couchdb service node" do
+  include VCAP::Services::Couchdb
 
   before :all do
     @opts = get_node_test_config
@@ -45,7 +45,7 @@ describe "Echo service node" do
     @echoer.should_not == nil
   end
 
-  it "should provison a echo service with correct credential" do
+  it "should provison a couchdb service with correct credential" do
     EM.run do
       @echoer.should be_instance_of Hash
       @echoer["port"].should be 5002

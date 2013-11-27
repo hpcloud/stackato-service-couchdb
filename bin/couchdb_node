@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+#
+# Copyright (c) 2009-2011 VMware, Inc.
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", __FILE__)
+require 'bundler/setup'
+require 'vcap_services_base'
+
+$LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
+require "couchdb_service/couchdb_node"
+
+class VCAP::Services::Couchdb::NodeBin < VCAP::Services::Base::NodeBin
+
+  def initialize
+    @component_id = "couchdb_node"
+  end
+
+  def node_class
+    VCAP::Services::Couchdb::Node
+  end
+
+  def default_config_file
+    File.join(File.dirname(__FILE__), '..', 'config', 'couchdb_node.yml')
+  end
+
+  def additional_config(options, config)
+    options[:couchdb_admin] = parse_property(config, "couchdb_admin", String)
+    options[:couchdb_password] = parse_property(config, "couchdb_password", String)
+    options[:couchdb_hostname] = parse_property(config, "couchdb_hostname", String)
+    options[:port] = parse_property(config, "port", Integer)
+    return options
+  end
+
+end
+
+VCAP::Services::Couchdb::NodeBin.new.start

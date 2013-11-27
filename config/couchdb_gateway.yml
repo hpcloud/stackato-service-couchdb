@@ -1,0 +1,15 @@
+---
+service:
+  name: couchdb
+  version: "1.5.0"
+  description: 'Couchdb service'
+  plans: ['free']
+  default_plan: free
+  tags: ['couchdb', 'couchdb-1.5.0']
+ip_route: 127.0.0.1
+index: 0
+logging:
+  level: debug
+mbus: nats://127.0.0.1:4222
+pid: /var/vcap/sys/run/couchdb_service.pid
+node_timeout: 2

@@ -1,129 +1,45 @@
-Echo Service for Stackato
+CouchDB Service for Stackato
 =========================
 
-An example system service for Stackato which echoes service requests and
-provides a port credential. This sample, along with the following
-instructions, show how to add a system service to a Stackato micro
-cloud.
-
-This sample is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
+The Stackato CouchDB service is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
 with some additional configuration (e.g for `kato` and `supervisord`)
-and other minor differences (e.g. the Gemfile). The instructions
-here are for [Stackato
-2.6](http://www.activestate.com/stackato/get_stackato).
+and other minor differences. The instructions here are for [Stackato
+2.10.6](http://www.activestate.com/stackato/get_stackato).
+
+## Prerequisites
+
+Make sure you followed the [Stackato quickstart guide](http://docs.stackato.com/quick-start/index.html) before continuing.
+
+**Tip**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the Stackato VM: 
+
+    echo api.`hostname`.local
 
 ## Copying/Cloning the Service to Stackato
 
-Log in to the Stackato VM (micro cloud or service node) as the
-'stackato' user and clone this repository directly into a
-vcap/services/echo directory:
+Log in to the Stackato VM (micro cloud or service node) as the 'stackato' user and clone this repository 
+directly into a `vcap/services/couchdb` directory:
 
-    $ git clone git://github.com/ActiveState/stackato-echoservice.git /s/vcap/services/echo
+    $ git clone https://github.com/shsu/stackato-couchdb.git /s/vcap/services/couchdb
 
-Alternatively, copy a local checkout to Stackato using SCP:
+**Alternatively**, you can scp a local checkout of stackato-couchdb to Stackato.
 
-    $ scp -r stackato-echoservice stackato@stackato-vm.local:~/stackato/vcap/services/echo
+## Apache CouchDB & Service Installation
 
-## Install the service gems
+You can customize your couchdb installation by editing `resources/default.ini` before running the install script.
 
-On the VM, go to the 'echo' directory and run 'bundle update':
+Execute `scripts/install-couchdb.sh` and `scripts/bootstrap.sh` on the stackato VM:
 
-    $ cd /s/vcap/services/echo
-    $ bundle install 
+    $ cd /s/vcap/services/couchdb/scripts
+    $ sudo ./install-couchdb.sh
+    $ ./bootstrap.sh
 
-## Edit the config files
-
-Some settings in the default files in the config/ directory will need to be modified. This may include:
-
-* `cloud_controller_uri`: This needs to match the API endpoint of your
-  system (e.g. api.stackato-wxyz.local)
-* `token`: can be any string, but we will need to add this auth token
-  to the cloud_controller in a later step
-* `mbus`: This should match the setting for other services. You can check
-  the correct setting using `kato config get redis_node mbus`
-
-## Install to supervisord
-
-Supervisord monitors, starts, and stops all Stackato processes, and will
-need to have configuration files for the 'echo_gateway' and 'echo_node'
-processes. These supervisord config files can be found in the
-'stackato-conf' directory.
-
-First, stop kato and supervisord:
-
-    $ kato stop
-    ...
-    $ stop-supervisord
-  
-Copy the supervisord config files:
-
-    $ cp stackato-conf/echo_*  /s/etc/supervisord.conf.d/
-  
-
-## Install to Kato
-
-The 'kato' administrative tool will also need configuration to recognize
-the new service. This can be done by appending the contents of
-process-snippet.yml and roles-snippet.yml to their respective
-kato config files:
-
-    $ cat stackato-conf/processes-snippet.yml >> /s/etc/kato/processes.yml
-    $ cat stackato-conf/roles-snippet.yml >> /s/etc/kato/roles.yml
-
-Note that 'echo_node' should always be specified before 'echo_gateway'.
-
-Optionally, you can add echo to the "data-services" group in
-role_groups.yml or create a new group. These groupings enable subsequent
-easy enabling/disabling of logical groups of services.
-
-## Loading the config into Doozer
-
-Doozer is the centralized configuration management component in
-Stackato, including the service configuration we have just added. To
-load the settings from the YAML files in 'echo/config/':
-
-Change to the /s/ directory (symlink of /home/stackato/stackato/), then
-start supervisord:
-
-    $ start-supervisord
-
-Run the following two commands:
-
-    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("echo_node", YAML.load_file("/s/vcap/services/echo/config/echo_node.yml"))'
-  
-    RUBYLIB=kato/lib ruby -e 'require "yaml"; require "kato/doozer"; Kato::Doozer.set_component_config("echo_gateway", YAML.load_file("/s/vcap/services/echo/config/echo_gateway.yml"))'
-  
-These commands must be run after any change in the YAML config files.
-
-
-## Add the service AUTH token to the cloud controller
-
-The auth token used must match between the service and cloud controller
-nodes so we must set them accordingly:
-
-    $ kato config set cloud_controller builtin_services/echo '{"token": "<echo_gateway.yml auth token>"}' --json
-
-Replace the <echo_gateway.yml auth token> string above with the auth
-token you setup up earlier in config/echo_gateway.yml
-
-## Enable echo and start
-
-    $ kato role add echo
-    starting echo_node...               ok
-    starting echo_gateway...            ok
-    starting logyard...                 ok
-    starting cloudevents...             ok
-    starting systail...                 ok
-
-Finally, start all other stackato processes:
-    
-    $ kato start
+`scripts/bootstrap.sh` will prompt for the Cloud Controller API URL.
+After both scripts finish executing, the service and couchdb should start running.
 
 ## Verify the service
 
-Once the echo service has been enabled and started in kato, clients
-targeting the system should be able to see it listed in the System
-Services output:
+Once the couchdb service has been enabled and started in kato, clients targeting 
+the system should be able to see it listed in the System Services output:
 
     $ stackato services
   
@@ -132,7 +48,7 @@ Services output:
     +------------+---------+------------------------------------------+
     | Service    | Version | Description                              |
     +------------+---------+------------------------------------------+
-    | echo       | 1.0     | Echo service                             |
+    | couchdb    | 1.5.0   | CouchDB service                          |
     | filesystem | 1.0     | Persistent filesystem service            |
     | memcached  | 1.4     | Memcached in-memory object cache service |
     | mongodb    | 2.0     | MongoDB NoSQL store                      |
@@ -143,5 +59,32 @@ Services output:
     
 To create a new service:
 
-    $ stackato create-service echo
-    Creating Service [echo-503db]: OK
+    $ stackato create-service couchdb
+    Creating Service [couchdb-503db]: OK
+
+## Optional Configurations:
+
+* To have `COUCHDB_URL` available in your environment, add the following snippet of code to 
+`/s/vcap/common/lib/vcap/services_env.rb` after the comment about 
+"# Add individual environment variables" (around line 60):
+
+        only_item(vcap_services['couchdb']) do |s|
+            c = s[:credentials]
+            e["COUCHDB_URL"] = c[:couchdb_url]
+        end
+        
+Save the file then restart stackato components by executing: `kato restart`.
+
+## How to use this Stackato CouchDB Service:
+
+You will need to parse the `$VCAP_SERVICES` or `$COUCHDB_URL` (if available) environment variables.
+
+Below is an example in PHP:
+
+    $services = getenv("VCAP_SERVICES");
+    $services_json = json_decode($services,true);
+    $couchdb_conf = $services_json["couchdb"][0]["credentials"];
+    
+    $couch_connection_url = "http://".$couchdb_conf["username"].":".$couchdb_conf["password"]."@"
+        .$couchdb_conf["host"].":".$couchdb_conf["port"];
+    $couch_connection_db = $couchdb_conf["name"];
