@@ -10,7 +10,7 @@ and other minor differences. The instructions here are for [Stackato
 
 Make sure you followed the [Stackato quickstart guide](http://docs.stackato.com/quick-start/index.html) before continuing.
 
-**Tip**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the stackato VM: 
+**Tip**: To find out the Cloud Controller API URL for a **microcloud**, run this command on the Stackato VM: 
 
     echo api.`hostname`.local
 
@@ -79,7 +79,7 @@ Save the file then restart stackato components by executing: `kato restart`.
 
 You will need to parse the `$VCAP_SERVICES` or `$COUCHDB_URL` (if available) environment variables.
 
-Below is a PHP example:
+Below is an example in PHP:
 
     $services = getenv("VCAP_SERVICES");
     $services_json = json_decode($services,true);
