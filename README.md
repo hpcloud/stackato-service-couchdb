@@ -1,5 +1,5 @@
 CouchDB Service for Stackato
-=========================
+============================
 
 The Stackato CouchDB service is based on [cloudfoundry/vcap-services/echo](https://github.com/cloudfoundry/vcap-services/tree/master/echo)
 with some additional configuration (e.g for `kato` and `supervisord`)
@@ -19,7 +19,7 @@ Make sure you followed the [Stackato quickstart guide](http://docs.stackato.com/
 Log in to the Stackato VM (micro cloud or service node) as the 'stackato' user and clone this repository 
 directly into a `vcap/services/couchdb` directory:
 
-    $ git clone https://github.com/shsu/stackato-couchdb.git /s/vcap/services/couchdb
+    $ git clone https://github.com/ActiveState/stackato-couchdb-service.git /s/vcap/services/couchdb
 
 **Alternatively**, you can scp a local checkout of stackato-couchdb to Stackato.
 
